@@ -27,6 +27,10 @@ namespace Baufflaechenverwaltung
 
         public void FlaecheReservieren()
         {
+            if (Status == FlaechenStatus.Bebaut)
+            {
+                throw new InvalidOperationException($"Fläche {Id} kann nicht reserviert werden, da sie bereits bebaut ist.");
+            }
             Status = FlaechenStatus.Reserviert;
         }
     }
@@ -46,6 +50,15 @@ namespace Baufflaechenverwaltung
         public DateTime Fertigstellung { get; set; }
         public BauvorhabenStatus Status { get; set; } = BauvorhabenStatus.AntragEingereicht;
         public List<Bauflaeche> ZugeordneteFlaechen { get; set; } = new List<Bauflaeche>();
+
+        public void ZuweiseFlaeche(Bauflaeche flaeche)
+        {
+            if (flaeche.Status == FlaechenStatus.Bebaut)
+            {
+                throw new InvalidOperationException($"Fläche {flaeche.Id} ist bereits bebaut und kann keinem neuen Bauvorhaben zugewiesen werden.");
+            }
+            ZugeordneteFlaechen.Add(flaeche);
+        }
 
         public void StatusAktualisieren(BauvorhabenStatus neuerStatus)
         {
@@ -68,7 +81,8 @@ namespace Baufflaechenverwaltung
                 Bebaubarkeit = "ja", 
                 BPlanNummer = "BP-2022-089", 
                 Bodenrichtwert = 500m, 
-                Eigentuemer = "Max Mustermann"
+                Eigentuemer = "Max Mustermann",
+                Status = FlaechenStatus.Bebaut
             };
             grundstueck.Bauflaechen.Add(flaeche1);
 
@@ -82,16 +96,25 @@ namespace Baufflaechenverwaltung
                 Fertigstellung = DateTime.Now.AddMonths(12)
             };
 
-            // Prozess: Reservierung und Zuweisung
-            flaeche1.FlaecheReservieren();
-            vorhaben.ZugeordneteFlaechen.Add(flaeche1);
-            vorhaben.StatusAktualisieren(BauvorhabenStatus.Genehmigt);
+            Console.WriteLine("Test: Reservierung einer bebauten Fläche...");
+            try
+            {
+                flaeche1.FlaecheReservieren();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler: {ex.Message}");
+            }
 
-            Console.WriteLine($"Bauvorhaben: {vorhaben.Titel}");
-            Console.WriteLine($"Antragsteller: {vorhaben.Antragsteller.Name} ({vorhaben.Antragsteller.Firma})");
-            Console.WriteLine($"Status: {vorhaben.Status}");
-            Console.WriteLine($"Zugeordnete Fläche: {flaeche1.Id}, Status: {flaeche1.Status}");
-            Console.WriteLine($"B-Plan: {flaeche1.BPlanNummer}");
+            Console.WriteLine("\nTest: Zuweisung einer bebauten Fläche zu Bauvorhaben...");
+            try
+            {
+                vorhaben.ZuweiseFlaeche(flaeche1);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler: {ex.Message}");
+            }
         }
     }
 }
