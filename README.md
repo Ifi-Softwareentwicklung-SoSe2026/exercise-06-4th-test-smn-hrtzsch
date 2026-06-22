@@ -177,12 +177,66 @@ Ihre Aufgabe ist dann:
 
 Falls im Verlauf der Jürgen-Issues ein UML-Klassendiagramm gefordert wird, ergänzen Sie es in diesem Abschnitt.
 
+<!-- kevin-uml:start -->
 ```text @plantUML
 @startuml
+skinparam classAttributeIconSize 0
+
+enum FlaechenStatus {
+  Frei
+  Reserviert
+  Bebaut
+}
+
+enum BauvorhabenStatus {
+  AntragEingereicht
+  Genehmigt
+  Abgelehnt
+  InBearbeitung
+  Abgeschlossen
+}
+
+class Grundstueck {
+  +string Flurstuecknummer
+}
+
+class Bauflaeche {
+  +string Id
+  +double Groesse
+  +string Lage
+  +string AktuelleNutzung
+  +string Bebaubarkeit
+  +string BPlanNummer
+  +decimal Bodenrichtwert
+  +string Eigentuemer
+  +FlaechenStatus Status
+  +void FlaecheReservieren()
+}
+
+class Bauvorhaben {
+  +string Titel
+  +string GeplanteNutzung
+  +DateTime Beginn
+  +DateTime Fertigstellung
+  +BauvorhabenStatus Status
+  +void ZuweiseFlaeche(Bauflaeche flaeche)
+  +void StatusAktualisieren(BauvorhabenStatus neuerStatus)
+}
+
+class Antragsteller {
+  +string Name
+  +string Kontaktdaten
+  +string Firma
+}
+
+Grundstueck "1" *-- "0..*" Bauflaeche : enthält
+Bauvorhaben "0..*" o-- "1..*" Bauflaeche : nutzt
+Bauvorhaben "*" -- "1" Antragsteller : wird beantragt von
 
 @enduml
 ```
 @plantUML.eval(png)
+<!-- kevin-uml:end -->
 
 ## Klassenstruktur
 
